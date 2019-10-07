@@ -49,8 +49,9 @@ main PROC
     CALL WriteString
     CALL WriteHex
     CALL CrLf
-    MOV ECX,4
-    MOV EBX,4
+    MOV ESI, OFFSET A
+    MOV ECX, 4
+    MOV EBX, 4
     CALL DumpMem
     CALL CrLf
 
