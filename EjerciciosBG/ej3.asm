@@ -52,7 +52,7 @@ main PROC
             initWhile:
                 CMP EBX, N              ; i <= N
                 JG endWhile
-                    MUL EBX
+                    IMUL EBX
                     INC EBX
                 JMP initWhile
             endWhile:
