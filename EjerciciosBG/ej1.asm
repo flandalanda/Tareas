@@ -30,7 +30,7 @@ main PROC
     MOV N, EAX
 
     
-    CMP EAX, i
+    CMP EAX, 1
     JGE else1
         MOV EDX, OFFSET Error
         CALL WriteString
