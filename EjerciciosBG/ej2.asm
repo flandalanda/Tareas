@@ -103,13 +103,11 @@ main PROC
                 MOV EAX, ECX
                 CALL WriteInt
                 CALL CrLf
-                MOV EDX, OFFSET Adios
-                CALL WriteString
-
         finif2:
 
     finif1:
-
+        MOV EDX, OFFSET Adios
+        CALL WriteString
         exit
 
     main ENDP

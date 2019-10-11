@@ -11,7 +11,7 @@ INCLUDELIB \masm32\Irvine\Kernel32.lib
 
 .DATA
 N SDWORD ?
-Error BYTE "Error, numero invalido",0
+Error BYTE "Error, numero invalido: ",0
 Respuesta BYTE "Suma total serie:",0
 Adios BYTE "Adios",0
 Termino BYTE "Termino ",0
@@ -34,6 +34,7 @@ main PROC
     JGE else1
         MOV EDX, OFFSET Error
         CALL WriteString
+        CALL WriteInt
         CALL CrLf
     JMP finif1
     else1: 
