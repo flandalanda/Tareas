@@ -30,20 +30,21 @@ temperaturas SDWORD ?
 ; Procedimiento principal
 main PROC
 
-    MOV ESI, OFFSET temperaturas
+    MOV ESI, OFFSET temperaturas               ; Ubicamos en ESI el lugar de memoria del arreglo de temperaturas
     
-    MOV EDX, OFFSET textoLec
+    MOV EDX, OFFSET textoLec                   ; Leemos el número de temperaturas que se van a ingresar
     CALL WriteString
     CALL CrLf
     CALL ReadInt
-    MOV N, EAX
-    .IF N < 1 || N > 10
-        MOV EDX, OFFSET textoError1
+    
+    MOV N, EAX                                 ; Almacenamos el total de temperaturas a leer
+    .IF N < 1 || N > 10                        ; Si el número de temperaturas es menor a 1 o mayor
+        MOV EDX, OFFSET textoError1            ; a 10 se emite un error
         CALL WriteString
         CALL CrLf
     .ELSE
-        MOV EBX, 1
-        .WHILE EBX <= N
+        MOV EBX, 1                             ; Iniciamos un contador en 1
+        .WHILE EBX <= N                        ; Leemos las N temperaturas
             MOV EDX, OFFSET textoLectura1
             CALL WriteString
             MOV EAX, EBX
@@ -53,14 +54,14 @@ main PROC
             CALL ReadInt
             CALL CrLf
 
-            MOV [ESI], EAX
-            INC SDWORD PTR [ESI]
+            MOV [ESI], EAX                     ; Almacenamos la temperatura en el arreglo de temperaturas
+            ADD ESI, TYPE temperaturas         ; Incrementamos la dirección de memoria almacenada en ESI por 4
 
-            .IF EAX < min
-                MOV min, EAX
+            .IF EAX < min                      ; Si la temperatura ingresada es menor a la temperatura mínima
+                MOV min, EAX                   ; se almacena como la nueva temperatura mínima
                 MOV pos, EBX
             .ENDIF
-            INC EBX
+            INC EBX                            ; Se incrementa el contador
         .ENDW
         
         MOV EDX, OFFSET textoMin
@@ -70,9 +71,8 @@ main PROC
         CALL CrLf
     
         .WHILE EBX > 1
-            ;SUB ESI, TYPE temperaturas
-            DEC SDWORD PTR [ESI]
-            DEC EBX
+            SUB ESI, TYPE temperaturas         ; Decrementamos la dirección de memoria contenida en ESI
+            DEC EBX                            ; Decrementamos el contador
             
             MOV EDX, OFFSET textoFin1
             CALL WriteString
