@@ -74,7 +74,7 @@ main ENDP
 
 Salarios PROC
 ; Salarios(numSal)
-; Pide numSal número de salarios y calcula su suma.
+; Pide numSal nï¿½mero de salarios y calcula su suma.
 ; Recibe
 ;     Stack: numSal
 ; Regresa
