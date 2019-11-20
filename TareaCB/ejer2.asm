@@ -9,6 +9,7 @@ N DWORD ?
 textoM BYTE "M: ",0
 textoN BYTE "N: ",0
 textoProd BYTE "Producto: ",0
+adios BYTE "ADIOS",0
 
 ; Multi
 retorno DWORD ?
@@ -47,7 +48,9 @@ main PROC
     POP EAX
     CALL WriteInt
     
-    
+    CALL CrLf
+    MOV EDX, OFFSET adios
+    CALL WriteString
 	
 	exit
 main ENDP
