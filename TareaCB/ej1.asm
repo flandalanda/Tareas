@@ -20,6 +20,11 @@ dirRet DWORD ?
 txtDword BYTE "Dword ", 0
 txtEspacio BYTE ": ", 0
 
+dirRet2 DWORD ?
+dirRet3 DWORD ?
+
+n DWORD ?
+
 .CODE
 main PROC
     MOV EDX, OFFSET txtDatos        ; Leer nÃºmero de elementos del arreglo
@@ -27,7 +32,8 @@ main PROC
     CALL CrLf
     CALL ReadInt
     MOV lenArray, EAX
-
+ 
+    PUSH OFFSET array
     PUSH lenArray
     CALL leerElems
 
@@ -45,11 +51,15 @@ main PROC
     PUSH lenArray
     CALL impArray
 
-
-    PUSH bitsDesp                  ; Desplazar bits
-    PUSH OFFSET array
+                      
+    PUSH bitsDesp                   ; Desplazar bits
     PUSH lenArray
+    PUSH OFFSET array
     CALL desplazarBits
+
+    PUSH OFFSET array               ; Imprimir arreglo inicial
+    PUSH lenArray
+    CALL impArray
 
 
 
@@ -81,18 +91,21 @@ leerElems PROC
         INC EAX
         CALL WriteInt
 
-        MOV EDX OFFSET txtEspacio
+        MOV EDX, OFFSET txtEspacio
         CALL WriteString
 
-        CALL ReadInt         ; leer valor a guardar
-        MOV [ESI], EAX       ; guardar en el arreglo
+        CALL ReadHex         ; leer valor a guardar
+        MOV DWORD PTR [ESI], EAX       ; guardar en el arreglo
 
-        ADD EAX, TYPE DWORD
+        ADD ESI, TYPE DWORD
 
         CALL CrLf
 
         INC EBX
     .ENDW
+    MOV ESI, OFFSET array
+    MOV ECX, lenArray
+    MOV EBX, 4
 
     PUSH dirRet
 
@@ -101,34 +114,37 @@ leerElems ENDP
 
 
 ;-----------------------------------------------------------
+; desplazarBits(arreglo, numEl, n)
+; Recibe:
+;   arreglo - offset de arreglo a desplazar
+;   numEl - numero de elementos en el arreglo
+;   n - numero de bits de desplazamiento
+; Regresa:
+; Requiere N/A
+;
 desplazarBits PROC
-; DESCRIPCION:
-;   Lee n enteros del teclado y los guarda en un arreglo
-; RECIBE:
-;   Por medio del stack,
-;   apuntador al arreglo donde se guardan los elementos en ESI
-;   numero de elementos del arreglo en ECX
-;   numero de bits a desplazar en EBX
-; REGRESA:
-;   Nada.
-;-----------------------------------------------------------
     POP dirRet2
-    POP ECX     
-    POP ESI
-    POP EBX
- 
-    MOV EDX, 0
-    SHR [ESI + EDX], EBX
+    POP ESI           ; OFFSET de arreglo
+    POP EBX           ; tamaño de arreglo
+    POP n             ; número de shifts
 
-    INC EDX
-    .WHILE EDX < ECX
-        RCR [ESI + EDX], EBX 
+    MOV ECX, 1
+
+    .WHILE (ECX <= n)
+        MOV EAX, 1
+        SHR DWORD PTR [ESI], 1
+        PUSHF                                                   ; Es necesario hacer esto con las banderas porque las macros las modifican
+            .REPEAT
+                POPF                                            ; Es necesario hacer esto con las banderas porque las macros las modifican
+                RCR DWORD PTR [ESI + EAX * 4], 1
+                PUSHF                                           ; Es necesario hacer esto con las banderas porque las macros las modifican
+                INC EAX
+            .UNTIL EAX == EBX
+        INC ECX
     .ENDW
-
-
-    EXIT
+    PUSH dirRet2
+    RET
 desplazarBits ENDP
-
 
 
 ;-----------------------------------------------------------
@@ -144,21 +160,26 @@ impArray PROC
 ;   Nada.
 ;-----------------------------------------------------------
     POP dirRet3
-    POP ESI
     POP ECX
+    POP ESI
 
     MOV EBX, ECX
-    MUL EBX, 4
+    DEC EBX
+    IMUL EBX, TYPE DWORD
     ADD ESI, EBX
 
     .WHILE ECX > 0
         MOV EAX, [ESI]
-        Call WriteHex
+        Call WriteBin
+        CALL CrLf
 
-        SUB ESI, TYPE DWORD
+        SUB ESI, 4
 
-        INC 
+        DEC ECX
     .ENDW
+    CALL CrLf
+    PUSH dirRet3
+    RET
 impArray ENDP
 
 END main
