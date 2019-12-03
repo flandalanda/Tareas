@@ -49,9 +49,11 @@ main PROC
     CALL WriteFloat
     CALL CrLf
 
-    PRINTFPU
+    CALL ShowFPUStack
 
     FINIT
+
+    CALL ShowFPUStack
 
     MOV EDX, OFFSET adios
     CALL WriteString
