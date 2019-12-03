@@ -151,29 +151,32 @@ main ENDP
 
     Imprime ENDP
 
+
+    ; Obtenemos el mínimo elemento de un arreglo y su posición
+    ; 
     MenorLista PROC
         POP EDI    ; dir ret
         POP lim    ; valor n
         POP ESI    ; OFFSET arrLista
 
-        MOV EAX, 0
-        FLD REAL8 PTR [ESI]
-        CALL WriteFloat
+        MOV EAX, 0             ; contador
+        FLD REAL8 PTR [ESI]    ; inicializamos el mínimo como el primer elemento del arreglo
+        CALL WriteFloat        ; imprimimos como prueba de que se inicializa correctamente
 
         .WHILE EAX < lim
 
-            ADD ESI, TYPE REAL8
-            FCOM REAL8 PTR [ESI]
-            FNSTSW AX
-            SAHF
-            JB SALTO
-            FLD REAL8 PTR [ESI]
-            MOV EBX, EAX
-    SALTO:  INC EAX
+            ADD ESI, TYPE REAL8   ; posicionamos el apuntador al siguiente elemento del arreglo
+            FCOM REAL8 PTR [ESI]  ; Comparamos el elemento en ST(0) con el del arreglo
+            FNSTSW AX             ; Movemos las banderas afectadas a AX
+            SAHF                  ; Copiamos banderas a AH
+            JB SALTO              ; ;;;;;;; ESTE ES EL PUNTO QUE CAUSA PROBLEMAS
+            FLD REAL8 PTR [ESI]   ; En caso de que el elemento del arreglo sea menor, hacemos push a la pila del FPU
+            MOV EBX, EAX          ; Cargamos en EBX el indice del nuevo minimo
+    SALTO:  INC EAX               ; Incrementamos nuestro contador
 
         .ENDW
 
-        PUSH EBX
+        PUSH EBX                  ; Regresamos el indice
         PUSH EDI
 
         RET
