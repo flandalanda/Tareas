@@ -10,6 +10,7 @@ INCLUDE myIrvine.inc
 factor DWORD ?
 n DWORD ?
 arrLista REAL8 10 DUP(?)
+adios BYTE "Adios",0
 
 textoFac BYTE "Ingresa un factor entre el 0 y el 9: ",0
 textoN BYTE "Ingresa una N del 1 al 10: ",0
@@ -28,10 +29,14 @@ textoImp2 BYTE " es: ", 0
 
 ; Proc MenorLista
 lim DWORD ?
+aux REAL8 ?
 
 
 .CODE
 main PROC
+
+    FINIT
+    
     MOV EDX, OFFSET textoFac  ; Lectura de factor
     CALL WriteString
     CALL ReadInt
@@ -68,6 +73,13 @@ main PROC
     CALL WriteString
     POP EAX
     CALL WriteInt
+
+    FINIT
+    CALL ShowFPUStack
+    CALL CrLf
+
+    MOV EDX, OFFSET adios
+    CALL WriteString
     
     exit
 
@@ -159,21 +171,27 @@ main ENDP
         POP lim    ; valor n
         POP ESI    ; OFFSET arrLista
 
-        MOV EAX, 0             ; contador
-        FLD REAL8 PTR [ESI]    ; inicializamos el mínimo como el primer elemento del arreglo
-        CALL WriteFloat        ; imprimimos como prueba de que se inicializa correctamente
+        FINIT
 
-        .WHILE EAX < lim
+        MOV ECX, 1             ; contador
+        MOV EBX, 0
+        FLD REAL8 PTR [ESI]    ; inicializamos el mínimo como el primer elemento del arreglo
+      
+        .WHILE ECX < lim
 
             ADD ESI, TYPE REAL8   ; posicionamos el apuntador al siguiente elemento del arreglo
-            FCOM REAL8 PTR [ESI]  ; Comparamos el elemento en ST(0) con el del arreglo
+            FLD REAL8 PTR [ESI]
+            FCOM
             FNSTSW AX             ; Movemos las banderas afectadas a AX
             SAHF                  ; Copiamos banderas a AH
-            JB SALTO              ; ;;;;;;; ESTE ES EL PUNTO QUE CAUSA PROBLEMAS
-            FLD REAL8 PTR [ESI]   ; En caso de que el elemento del arreglo sea menor, hacemos push a la pila del FPU
-            MOV EBX, EAX          ; Cargamos en EBX el indice del nuevo minimo
-    SALTO:  INC EAX               ; Incrementamos nuestro contador
-
+            
+            JA ELSE1
+                MOV EBX, ECX
+                JMP SALTO
+            ELSE1:
+                FSTP aux
+            SALTO: INC ECX
+            
         .ENDW
 
         PUSH EBX                  ; Regresamos el indice
